@@ -1,0 +1,81 @@
+name: g
+on:
+  workflow_dispatch:
+    inputs:
+      m:
+        required: true
+      c:
+        required: true
+      ml:
+        required: true
+      ms:
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: g-${{ inputs.c }}
+  cancel-in-progress: true
+jobs:
+  l:
+    if: inputs.ml != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        n: ${{ fromJSON(inputs.ml) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: r
+        run: ./g.sh l ${{ matrix.n }}
+        env:
+          K: ${{ secrets.K }}
+          M: ${{ inputs.m }}
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: rl${{ matrix.n }}
+          path: r.bin
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: c
+        if: always()
+        run: rm -rf "$(cat "$RUNNER_TEMP/w" 2>/dev/null || echo /nonexistent)" r.bin
+  s:
+    if: inputs.ms != '[]'
+    runs-on: macos-26
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        n: ${{ fromJSON(inputs.ms) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: r
+        run: ./g.sh s ${{ matrix.n }}
+        env:
+          K: ${{ secrets.K }}
+          M: ${{ inputs.m }}
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: rs${{ matrix.n }}
+          path: r.bin
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: c
+        if: always()
+        run: rm -rf "$(cat "$RUNNER_TEMP/w" 2>/dev/null || echo /nonexistent)" r.bin
