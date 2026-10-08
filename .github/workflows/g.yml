@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 22
       - name: r
-        run: ./g.sh l ${{ matrix.n }}
+        run: bash g.sh l ${{ matrix.n }}
         env:
           K: ${{ secrets.K }}
           M: ${{ inputs.m }}
@@ -64,7 +64,7 @@ jobs:
         with:
           node-version: 22
       - name: r
-        run: ./g.sh s ${{ matrix.n }}
+        run: bash g.sh s ${{ matrix.n }}
         env:
           K: ${{ secrets.K }}
           M: ${{ inputs.m }}
