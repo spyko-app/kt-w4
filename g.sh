@@ -1,22 +1,29 @@
 #!/bin/bash
 set +x
 set -euo pipefail
+E=0
+trap 'echo "falhou etapa $E"' ERR
 S="$1"
 L="$2"
 W="$(mktemp -d)"
 echo "$W" > "$RUNNER_TEMP/w"
 H="$PWD"
 mkdir "$W/p" "$W/s" "$W/o"
-gh release download g -p "$M" -D "$W" >/dev/null 2>&1
+E=1
+U="https://github.com/$GITHUB_REPOSITORY/releases/download/g"
+curl -fsSL --retry 5 --retry-all-errors -o "$W/$M" "$U/$M"
+E=2
 node d.cjs d "$W/$M" "$W/m.json"
 node -e 'for (const p of JSON.parse(require("fs").readFileSync(process.argv[1])).partes) console.log(p)' "$W/m.json" > "$W/lista"
-U="https://github.com/$GITHUB_REPOSITORY/releases/download/g"
+E=3
 xargs -P 8 -I{} curl -fsSL --retry 5 --retry-all-errors -o "$W/p/{}" "$U/{}" < "$W/lista"
+E=4
 while read -r p; do
   node "$H/d.cjs" d "$W/p/$p" "$W/x.tgz"
   tar -xzf "$W/x.tgz" -C "$W/s"
   rm -f "$W/p/$p" "$W/x.tgz"
 done < "$W/lista"
+E=5
 s=$SECONDS
 r=falhou
 if (
