@@ -1,4 +1,5 @@
 name: g
+run-name: ${{ inputs.c }} ${{ inputs.m }}
 on:
   workflow_dispatch:
     inputs:
