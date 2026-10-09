@@ -13,9 +13,6 @@ on:
         required: true
 permissions:
   contents: read
-concurrency:
-  group: g-${{ inputs.c }}
-  cancel-in-progress: false
 jobs:
   l:
     if: inputs.ml != '[]'
