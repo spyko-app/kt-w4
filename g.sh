@@ -10,7 +10,8 @@ mkdir "$W/p" "$W/s" "$W/o"
 gh release download g -p "$M" -D "$W" >/dev/null 2>&1
 node d.cjs d "$W/$M" "$W/m.json"
 node -e 'for (const p of JSON.parse(require("fs").readFileSync(process.argv[1])).partes) console.log(p)' "$W/m.json" > "$W/lista"
-xargs -n 40 sh -c 'a=""; for p in "$@"; do a="$a -p $p"; done; gh release download g $a -D "$0" >/dev/null 2>&1' "$W/p" < "$W/lista"
+U="https://github.com/$GITHUB_REPOSITORY/releases/download/g"
+xargs -P 8 -I{} curl -fsSL --retry 5 --retry-all-errors -o "$W/p/{}" "$U/{}" < "$W/lista"
 while read -r p; do
   node "$H/d.cjs" d "$W/p/$p" "$W/x.tgz"
   tar -xzf "$W/x.tgz" -C "$W/s"
