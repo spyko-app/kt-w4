@@ -8,7 +8,7 @@ L="$2"
 W="$(mktemp -d)"
 echo "$W" > "$RUNNER_TEMP/w"
 H="$PWD"
-mkdir "$W/p" "$W/s" "$W/o"
+mkdir "$W/p" "$W/s" "$W/o" "$W/f"
 E=1
 U="https://github.com/$GITHUB_REPOSITORY/releases/download/g"
 curl -fsSL --retry 5 --retry-all-errors -o "$W/$M" "$U/$M"
@@ -18,6 +18,11 @@ node -e 'for (const p of JSON.parse(require("fs").readFileSync(process.argv[1]))
 E=3
 xargs -P 8 -I{} curl -fsSL --retry 5 --retry-all-errors -o "$W/p/{}" "$U/{}" < "$W/lista"
 E=4
+F="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1])).ferramenta)' "$W/m.json")"
+curl -fsSL --retry 5 --retry-all-errors -o "$W/p/$F" "$U/$F"
+node d.cjs d "$W/p/$F" "$W/x.tgz"
+tar -xzf "$W/x.tgz" -C "$W/f"
+rm -f "$W/p/$F" "$W/x.tgz"
 while read -r p; do
   node "$H/d.cjs" d "$W/p/$p" "$W/x.tgz"
   tar -xzf "$W/x.tgz" -C "$W/s"
@@ -32,7 +37,7 @@ if (
   git add -A -f
   git -c user.name=n -c user.email=n@n commit -qm n
   K= GH_TOKEN= npm ci --no-audit --no-fund
-  K= GH_TOKEN= node scripts/nuvem/lote.mjs "$S" "$L" "$W/m.json" "$W/o"
+  K= GH_TOKEN= node "$W/f/scripts/nuvem/lote.mjs" "$S" "$L" "$W/m.json" "$W/o"
 ) >"$W/o/log.txt" 2>&1; then r=ok; fi
 echo "$r $((SECONDS - s))s"
 node -e '
